@@ -63,7 +63,6 @@
       opacity: 0.9;
     }
 
-    /* Crosshair */
     .crosshair {
       position: fixed;
       top: 50%;
@@ -94,7 +93,6 @@
       height: 20px;
     }
 
-    /* Overlay screens */
     #overlay {
       position: fixed;
       inset: 0;
@@ -201,7 +199,6 @@
   </style>
 </head>
 <body>
-  <!-- HUD -->
   <div id="hud">
     <div class="hud-pill">
       HP
@@ -214,13 +211,9 @@
     <div id="status-text"></div>
   </div>
 
-  <!-- Crosshair -->
   <div id="crosshair" class="crosshair"></div>
-
-  <!-- Power-up text -->
   <div id="powerup-banner">Power-up!</div>
 
-  <!-- Start / Game Over overlay -->
   <div id="overlay">
     <div id="start-panel" class="panel">
       <div class="title">Neon Arena</div>
@@ -231,8 +224,8 @@
       </div>
       <button id="start-btn" class="btn">Start Game</button>
       <div style="margin-top:14px;font-size:12px;opacity:0.75;">
-        Tip: After the overlay disappears, click once in the game area<br/>
-        to lock your mouse and enable shooting.
+        After the overlay disappears,<br/>
+        click once in the game area to lock your mouse.
       </div>
     </div>
 
@@ -252,10 +245,12 @@
     </div>
   </div>
 
-  <script type="module">
-    import * as THREE from "https://unpkg.com/three@0.161.0/build/three.module.js";
-    import { PointerLockControls } from "https://unpkg.com/three@0.161.0/examples/jsm/controls/PointerLockControls.js";
+  <!-- Classic (non-module) Three.js + PointerLockControls -->
+  <script src="https://unpkg.com/three@0.161.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.161.0/examples/js/controls/PointerLockControls.js"></script>
 
+  <script>
+    // === GLOBALS ===
     let camera, scene, renderer, controls;
     const clock = new THREE.Clock();
 
@@ -272,18 +267,18 @@
     const direction = new THREE.Vector3();
 
     let canShoot = true;
-    let fireCooldown = 0.18; // seconds
+    let fireCooldown = 0.18;
     let fireTimer = 0;
 
     let playerSpeed = 16;
-    let baseSpeed = 16;
+    const baseSpeed = 16;
     let rapidFireActive = false;
     let rapidFireTimer = 0;
     let speedBoostActive = false;
     let speedBoostTimer = 0;
 
     let health = 100;
-    let maxHealth = 100;
+    const maxHealth = 100;
     let score = 0;
     let wave = 1;
     let isPlaying = false;
@@ -291,7 +286,7 @@
     const enemyRadius = 1.2;
     const bulletSpeed = 80;
 
-    // UI elements
+    // UI
     const healthFillEl = document.getElementById("health-fill");
     const scoreTextEl = document.getElementById("score-text");
     const waveTextEl = document.getElementById("wave-text");
@@ -306,6 +301,7 @@
     const quitBtn = document.getElementById("quit-btn");
     const powerupBanner = document.getElementById("powerup-banner");
 
+    // === INIT ===
     init();
     animate();
 
@@ -321,18 +317,25 @@
       const fogColor = new THREE.Color(0x020617);
       scene.fog = new THREE.FogExp2(fogColor, 0.02);
 
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
       camera.position.set(0, 1.6, 0);
 
-      controls = new PointerLockControls(camera, renderer.domElement);
+      // NOTE: classic (non-module) controls use global THREE.PointerLockControls
+      controls = new THREE.PointerLockControls(camera, renderer.domElement);
 
-      controls.addEventListener("lock", () => {
+      controls.addEventListener("lock", function () {
         statusTextEl.textContent = "";
       });
 
-      controls.addEventListener("unlock", () => {
+      controls.addEventListener("unlock", function () {
         if (isPlaying) {
-          statusTextEl.textContent = "Click in the game to lock cursor again";
+          statusTextEl.textContent =
+            "Click in the game to lock cursor again";
         }
       });
 
@@ -343,32 +346,32 @@
       dirLight.position.set(5, 8, 5);
       scene.add(dirLight);
 
-      // Neon ground grid
+      // Ground grid
       const groundGeo = new THREE.PlaneGeometry(200, 200, 40, 40);
       const groundMat = new THREE.MeshBasicMaterial({
         color: 0x0b1120,
-        wireframe: true,
+        wireframe: true
       });
       const ground = new THREE.Mesh(groundGeo, groundMat);
       ground.rotation.x = -Math.PI / 2;
       ground.position.y = 0;
       scene.add(ground);
 
-      // Floating neon pillars
+      // Neon pillars
       const pillarGeo = new THREE.BoxGeometry(1.2, 8, 1.2);
       const pillarMat1 = new THREE.MeshStandardMaterial({
         color: 0x22d3ee,
         emissive: 0x22d3ee,
         emissiveIntensity: 0.8,
         metalness: 0.2,
-        roughness: 0.3,
+        roughness: 0.3
       });
       const pillarMat2 = new THREE.MeshStandardMaterial({
         color: 0xa855f7,
         emissive: 0xa855f7,
         emissiveIntensity: 0.8,
         metalness: 0.2,
-        roughness: 0.3,
+        roughness: 0.3
       });
       for (let i = 0; i < 16; i++) {
         const mat = i % 2 === 0 ? pillarMat1 : pillarMat2;
@@ -385,8 +388,8 @@
       document.addEventListener("keyup", onKeyUp);
       window.addEventListener("resize", onWindowResize);
 
-      // Shooting + pointer lock on canvas click
-      renderer.domElement.addEventListener("mousedown", (event) => {
+      // Shooting + pointer lock
+      renderer.domElement.addEventListener("mousedown", function (event) {
         if (!isPlaying) return;
 
         if (!controls.isLocked) {
@@ -399,15 +402,15 @@
         }
       });
 
-      startBtn.addEventListener("click", () => {
+      startBtn.addEventListener("click", function () {
         startGame();
       });
 
-      restartBtn.addEventListener("click", () => {
+      restartBtn.addEventListener("click", function () {
         startGame();
       });
 
-      quitBtn.addEventListener("click", () => {
+      quitBtn.addEventListener("click", function () {
         isPlaying = false;
         showStartScreen();
       });
@@ -416,6 +419,7 @@
       statusTextEl.textContent = "";
     }
 
+    // === GAME FLOW ===
     function startGame() {
       resetGameState();
       overlayEl.style.display = "none";
@@ -442,9 +446,9 @@
     }
 
     function resetGameState() {
-      for (const e of enemies) scene.remove(e.mesh);
-      for (const b of bullets) scene.remove(b.mesh);
-      for (const p of powerUps) scene.remove(p.mesh);
+      enemies.forEach(e => scene.remove(e.mesh));
+      bullets.forEach(b => scene.remove(b.mesh));
+      powerUps.forEach(p => scene.remove(p.mesh));
       enemies.length = 0;
       bullets.length = 0;
       powerUps.length = 0;
@@ -466,6 +470,7 @@
       hidePowerupBanner();
     }
 
+    // === INPUT ===
     function onKeyDown(event) {
       switch (event.code) {
         case "ArrowUp":
@@ -517,6 +522,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // === ENEMIES & WAVES ===
     function spawnWave() {
       const count = 6 + wave * 2;
       for (let i = 0; i < count; i++) {
@@ -535,7 +541,7 @@
         emissive: col,
         emissiveIntensity: 0.8,
         metalness: 0.3,
-        roughness: 0.4,
+        roughness: 0.4
       });
 
       const mesh = new THREE.Mesh(geo, mat);
@@ -546,9 +552,8 @@
       scene.add(mesh);
 
       enemies.push({
-        mesh,
-        speed: 4 + Math.random() * 2 + wave * 0.3,
-        alive: true,
+        mesh: mesh,
+        speed: 4 + Math.random() * 2 + wave * 0.3
       });
     }
 
@@ -560,31 +565,26 @@
       else color = 0x22c55e;
 
       const mat = new THREE.MeshStandardMaterial({
-        color,
+        color: color,
         emissive: color,
         emissiveIntensity: 0.9,
         metalness: 0.1,
-        roughness: 0.3,
+        roughness: 0.3
       });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.copy(position);
       mesh.position.y = 1;
       scene.add(mesh);
 
-      powerUps.push({
-        mesh,
-        type,
-        t: 0,
-      });
+      powerUps.push({ mesh: mesh, type: type, t: 0 });
     }
 
+    // === SHOOTING ===
     function shoot() {
       if (!canShoot) return;
 
       const bulletGeo = new THREE.SphereGeometry(0.12, 12, 12);
-      const bulletMat = new THREE.MeshBasicMaterial({
-        color: 0x22d3ee,
-      });
+      const bulletMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee });
       const mesh = new THREE.Mesh(bulletGeo, bulletMat);
 
       const muzzle = new THREE.Vector3();
@@ -592,14 +592,13 @@
       const dir = new THREE.Vector3();
       camera.getWorldDirection(dir);
       muzzle.addScaledVector(dir, 0.8);
-
       mesh.position.copy(muzzle);
       scene.add(mesh);
 
       bullets.push({
-        mesh,
+        mesh: mesh,
         dir: dir.clone().normalize(),
-        life: 1.5,
+        life: 1.5
       });
 
       canShoot = false;
@@ -641,7 +640,7 @@
     function showPowerupBanner(text) {
       powerupBanner.textContent = text + " active";
       powerupBanner.classList.add("show");
-      setTimeout(() => {
+      setTimeout(function () {
         powerupBanner.classList.remove("show");
       }, 1400);
     }
@@ -657,6 +656,7 @@
       waveTextEl.textContent = wave.toString();
     }
 
+    // === PER-FRAME UPDATES ===
     function updateMovement(delta) {
       if (!controls.isLocked || !isPlaying) return;
 
@@ -667,8 +667,10 @@
       direction.x = Number(moveRight) - Number(moveLeft);
       direction.normalize();
 
-      if (moveForward || moveBackward) velocity.z -= direction.z * playerSpeed * delta;
-      if (moveLeft || moveRight) velocity.x -= direction.x * playerSpeed * delta;
+      if (moveForward || moveBackward)
+        velocity.z -= direction.z * playerSpeed * delta;
+      if (moveLeft || moveRight)
+        velocity.x -= direction.x * playerSpeed * delta;
 
       controls.moveRight(-velocity.x * delta);
       controls.moveForward(-velocity.z * delta);
@@ -679,7 +681,6 @@
         const b = bullets[i];
         b.mesh.position.addScaledVector(b.dir, bulletSpeed * delta);
         b.life -= delta;
-
         b.mesh.scale.multiplyScalar(1 - delta * 1.5);
 
         if (b.life <= 0) {
@@ -784,6 +785,7 @@
       }
     }
 
+    // === MAIN LOOP ===
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
