@@ -245,9 +245,9 @@
     </div>
   </div>
 
-  <!-- Classic (non-module) Three.js + PointerLockControls -->
-  <script src="https://unpkg.com/three@0.161.0/build/three.min.js"></script>
-  <script src="https://unpkg.com/three@0.161.0/examples/js/controls/PointerLockControls.js"></script>
+  <!-- NOTE: using a known-good older Three.js version whose controls work as classic scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/PointerLockControls.js"></script>
 
   <script>
     // === GLOBALS ===
@@ -286,7 +286,7 @@
     const enemyRadius = 1.2;
     const bulletSpeed = 80;
 
-    // UI
+    // UI elements
     const healthFillEl = document.getElementById("health-fill");
     const scoreTextEl = document.getElementById("score-text");
     const waveTextEl = document.getElementById("wave-text");
@@ -301,7 +301,6 @@
     const quitBtn = document.getElementById("quit-btn");
     const powerupBanner = document.getElementById("powerup-banner");
 
-    // === INIT ===
     init();
     animate();
 
@@ -325,7 +324,6 @@
       );
       camera.position.set(0, 1.6, 0);
 
-      // NOTE: classic (non-module) controls use global THREE.PointerLockControls
       controls = new THREE.PointerLockControls(camera, renderer.domElement);
 
       controls.addEventListener("lock", function () {
@@ -346,7 +344,6 @@
       dirLight.position.set(5, 8, 5);
       scene.add(dirLight);
 
-      // Ground grid
       const groundGeo = new THREE.PlaneGeometry(200, 200, 40, 40);
       const groundMat = new THREE.MeshBasicMaterial({
         color: 0x0b1120,
@@ -357,7 +354,6 @@
       ground.position.y = 0;
       scene.add(ground);
 
-      // Neon pillars
       const pillarGeo = new THREE.BoxGeometry(1.2, 8, 1.2);
       const pillarMat1 = new THREE.MeshStandardMaterial({
         color: 0x22d3ee,
@@ -388,7 +384,6 @@
       document.addEventListener("keyup", onKeyUp);
       window.addEventListener("resize", onWindowResize);
 
-      // Shooting + pointer lock
       renderer.domElement.addEventListener("mousedown", function (event) {
         if (!isPlaying) return;
 
@@ -419,7 +414,6 @@
       statusTextEl.textContent = "";
     }
 
-    // === GAME FLOW ===
     function startGame() {
       resetGameState();
       overlayEl.style.display = "none";
@@ -470,7 +464,6 @@
       hidePowerupBanner();
     }
 
-    // === INPUT ===
     function onKeyDown(event) {
       switch (event.code) {
         case "ArrowUp":
@@ -522,7 +515,6 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    // === ENEMIES & WAVES ===
     function spawnWave() {
       const count = 6 + wave * 2;
       for (let i = 0; i < count; i++) {
@@ -579,7 +571,6 @@
       powerUps.push({ mesh: mesh, type: type, t: 0 });
     }
 
-    // === SHOOTING ===
     function shoot() {
       if (!canShoot) return;
 
@@ -656,7 +647,6 @@
       waveTextEl.textContent = wave.toString();
     }
 
-    // === PER-FRAME UPDATES ===
     function updateMovement(delta) {
       if (!controls.isLocked || !isPlaying) return;
 
@@ -785,7 +775,6 @@
       }
     }
 
-    // === MAIN LOOP ===
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
