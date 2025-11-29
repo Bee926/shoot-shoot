@@ -75,7 +75,7 @@
     }
     .crosshair::before,
     .crosshair::after {
-      content: '';
+      content: "";
       position: absolute;
       background: white;
       box-shadow: 0 0 4px cyan;
@@ -245,12 +245,11 @@
     </div>
   </div>
 
-  <!-- NOTE: using a known-good older Three.js version whose controls work as classic scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/PointerLockControls.js"></script>
+  <!-- Three.js as ES module from CDN -->
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.161.0/build/three.module.js";
+    import { PointerLockControls } from "https://unpkg.com/three@0.161.0/examples/jsm/controls/PointerLockControls.js";
 
-  <script>
-    // === GLOBALS ===
     let camera, scene, renderer, controls;
     const clock = new THREE.Clock();
 
@@ -286,7 +285,6 @@
     const enemyRadius = 1.2;
     const bulletSpeed = 80;
 
-    // UI elements
     const healthFillEl = document.getElementById("health-fill");
     const scoreTextEl = document.getElementById("score-text");
     const waveTextEl = document.getElementById("wave-text");
@@ -324,16 +322,15 @@
       );
       camera.position.set(0, 1.6, 0);
 
-      controls = new THREE.PointerLockControls(camera, renderer.domElement);
+      controls = new PointerLockControls(camera, renderer.domElement);
 
-      controls.addEventListener("lock", function () {
+      controls.addEventListener("lock", () => {
         statusTextEl.textContent = "";
       });
 
-      controls.addEventListener("unlock", function () {
+      controls.addEventListener("unlock", () => {
         if (isPlaying) {
-          statusTextEl.textContent =
-            "Click in the game to lock cursor again";
+          statusTextEl.textContent = "Click in the game to lock cursor again";
         }
       });
 
@@ -384,7 +381,7 @@
       document.addEventListener("keyup", onKeyUp);
       window.addEventListener("resize", onWindowResize);
 
-      renderer.domElement.addEventListener("mousedown", function (event) {
+      renderer.domElement.addEventListener("mousedown", (event) => {
         if (!isPlaying) return;
 
         if (!controls.isLocked) {
@@ -397,15 +394,15 @@
         }
       });
 
-      startBtn.addEventListener("click", function () {
+      startBtn.addEventListener("click", () => {
         startGame();
       });
 
-      restartBtn.addEventListener("click", function () {
+      restartBtn.addEventListener("click", () => {
         startGame();
       });
 
-      quitBtn.addEventListener("click", function () {
+      quitBtn.addEventListener("click", () => {
         isPlaying = false;
         showStartScreen();
       });
@@ -544,7 +541,7 @@
       scene.add(mesh);
 
       enemies.push({
-        mesh: mesh,
+        mesh,
         speed: 4 + Math.random() * 2 + wave * 0.3
       });
     }
@@ -557,7 +554,7 @@
       else color = 0x22c55e;
 
       const mat = new THREE.MeshStandardMaterial({
-        color: color,
+        color,
         emissive: color,
         emissiveIntensity: 0.9,
         metalness: 0.1,
@@ -568,7 +565,7 @@
       mesh.position.y = 1;
       scene.add(mesh);
 
-      powerUps.push({ mesh: mesh, type: type, t: 0 });
+      powerUps.push({ mesh, type, t: 0 });
     }
 
     function shoot() {
@@ -587,7 +584,7 @@
       scene.add(mesh);
 
       bullets.push({
-        mesh: mesh,
+        mesh,
         dir: dir.clone().normalize(),
         life: 1.5
       });
@@ -631,7 +628,7 @@
     function showPowerupBanner(text) {
       powerupBanner.textContent = text + " active";
       powerupBanner.classList.add("show");
-      setTimeout(function () {
+      setTimeout(() => {
         powerupBanner.classList.remove("show");
       }, 1400);
     }
