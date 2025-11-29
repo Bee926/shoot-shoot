@@ -1,0 +1,43 @@
+/* Custom crosshair */
+    .crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+    .crosshair::before, .crosshair::after {
+        content: '';
+        position: absolute;
+        background: white;
+        box-shadow: 0 0 4px cyan;
+    }
+    .crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+    .crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+    @keyframes bounce-short {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .animate-bounce-short {
+        animation: bounce-short 1s infinite;
+    }
+</style>
+
+<!-- Import Map for React and Three.js -->
+<script type="importmap">
+{
+    "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "three": "https://esm.sh/three@0.161.0",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?external=react,react-dom,three",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.102.0?external=react,react-dom,three,@react-three/fiber"
+    }
+}
+</script>
+
+<!-- Babel for JSX compilation in browser -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
